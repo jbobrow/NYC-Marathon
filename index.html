@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NYC Marathon Race Day</title>
+<meta name="description" content="Know where to be, and when: a race-day planner for the 2026 TCS New York City Marathon, with your cheer spot, subway lines, timing for the pros and the field, and your runner's arrival.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='.9em' font-size='86' text-anchor='middle' transform='translate(100 0) scale(-1 1)'%3E%F0%9F%8F%83%E2%80%8D%E2%99%82%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px;font-family:system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one phone-width column; a bib-style runner card on top, the schematic course map, then spots, schedule, splits. */
+:root{
+  --bg:#F1F3EF; --surface:#FFFFFF; --ink:#16202A; --muted:#56636D; --line:#D6DBD3;
+  --accent:#2446A8; --accent-ink:#FFFFFF; --course:#D9652B; --course-ink:#FFFFFF; --blue:#2446A8; --pink:#B83A28;
+  --water:#D9E3E4; --land:#F8F9F6; --land-2:#E6E9E3; --soft:#F6E6D7; --road:#E2E1D8; --wc-ink:#2E2B28;
+  --emoji-tint:brightness(0) saturate(100%) invert(22%) sepia(63%) saturate(2700%) hue-rotate(218deg) brightness(91%) contrast(92%);
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --body:"Public Sans","Helvetica Neue",system-ui,-apple-system,sans-serif;
+  --mono:"Public Sans","Helvetica Neue",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121820; --surface:#1A222C; --ink:#E7EBE6; --muted:#9DA9B1; --line:#2C3743;
+  --accent:#8EA8F2; --accent-ink:#0E1630; --course:#EE8A4E; --course-ink:#1E0F06; --blue:#8EA8F2; --pink:#F08A74;
+  --water:#17232D; --land:#1F2934; --land-2:#242E39; --soft:#3A2A1E; --road:#2A333D; --wc-ink:#D9D4CC; --emoji-tint:brightness(0) saturate(100%) invert(68%) sepia(19%) saturate(1200%) hue-rotate(195deg) brightness(100%) contrast(92%); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121820; --surface:#1A222C; --ink:#E7EBE6; --muted:#9DA9B1; --line:#2C3743;
+  --accent:#8EA8F2; --accent-ink:#0E1630; --course:#EE8A4E; --course-ink:#1E0F06; --blue:#8EA8F2; --pink:#F08A74;
+  --water:#17232D; --land:#1F2934; --land-2:#242E39; --soft:#3A2A1E; --road:#2A333D; --wc-ink:#D9D4CC; --emoji-tint:brightness(0) saturate(100%) invert(68%) sepia(19%) saturate(1200%) hue-rotate(195deg) brightness(100%) contrast(92%); color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:.01em}
+h2{font-size:1.6rem;font-weight:700;line-height:1.05;letter-spacing:-.01em}
+h1,h2,h3,summary,.goal-val,.waves button,.spot .n,.spot .eta,.sched .t,td.m,.bignums b,.status b,.ms-eta b,.passlist li .t,.paste-row button{font-stretch:88%}
+.eyebrow{font-family:var(--mono);font-weight:600;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tnum{font-variant-numeric:tabular-nums}
+section{display:flex;flex-direction:column;gap:12px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sec-head p{margin:0;color:var(--muted);font-size:.9rem}
+
+/* header */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px 20px}
+.hero-text{display:flex;flex-direction:column;gap:10px;min-width:0;padding-bottom:6px}
+.brand{display:flex;align-items:center;gap:8px;color:var(--accent)}
+.brand svg{display:block}
+.brand-emoji{display:inline-block;font-size:22px;line-height:1;transform:scaleX(-1);filter:var(--emoji-tint)}
+.brand p{margin:0;font-family:var(--display);font-weight:800;font-stretch:112%;font-size:1.1rem;color:var(--ink)}
+.brand span{color:var(--accent)}
+.hero h1{font-size:clamp(2.3rem,7.5vw,3.4rem);font-weight:700;font-stretch:90%;line-height:1;letter-spacing:-.015em;margin-top:4px}
+.dek{color:var(--muted);margin:0;max-width:60ch;font-size:1.02rem;line-height:1.55}
+.when{margin:0;font-size:.85rem;color:var(--muted)}
+.sig{display:block;stroke:var(--muted);margin-top:2px}
+.hero-art{display:block;width:300px;max-width:100%;height:auto;overflow:visible}
+.hero-art .wk{fill:none;stroke:var(--wc-ink);stroke-width:1;stroke-linecap:round;stroke-linejoin:round}
+.hero-art .wk.t{stroke-width:.6;opacity:.7}
+.hero-art .wkl{fill:none;stroke:var(--wc-ink);stroke-linecap:round}
+.hero-img{display:block;width:340px;max-width:100%;height:auto;aspect-ratio:3/2;object-fit:contain}
+@media (max-width:640px){.hero{grid-template-columns:1fr}.hero-img{order:-1;width:min(100%,380px);justify-self:center}}
+
+/* runner bib card */
+.bib{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.bib::before,.bib::after{content:"";position:absolute;top:10px;width:9px;height:9px;border-radius:50%;background:var(--bg);border:1px solid var(--line)}
+.bib::before{left:10px}.bib::after{right:10px}
+.bib-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-inline:14px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+label,.lbl{font-family:var(--mono);font-weight:600;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+input[type=text]{font:600 1.05rem var(--body);color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--line);padding:4px 0;width:100%;min-width:0}
+input[type=text]:focus{outline:none;border-bottom-color:var(--accent)}
+.waves{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.waves button{font:700 1.15rem var(--display);padding:8px 0 6px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;line-height:1}
+.waves button small{font:500 .62rem var(--mono);color:var(--muted);margin-top:3px}
+.waves button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.waves button[aria-pressed=true] small{color:var(--bg)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.goal-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.goal-val{font:800 1.9rem var(--display);line-height:1}
+.goal-val small{font:500 .8rem var(--mono);color:var(--muted);margin-left:6px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.status{display:flex;gap:12px;align-items:center;background:var(--soft);border-radius:8px;padding:12px}
+.status .dot{flex:none;width:12px;height:12px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 4px color-mix(in srgb,var(--blue) 25%,transparent)}
+.status b{font-family:var(--display);font-size:1.25rem;font-weight:700;display:block;line-height:1.1}
+.status span{font-size:.88rem;color:var(--muted)}
+.bignums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-top:1px dashed var(--line);padding-top:12px}
+.bignums div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.bignums b{font:700 1.35rem var(--display);line-height:1}
+
+/* your spot */
+.myspot{background:var(--surface);border:2px solid var(--course);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.ms-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.ms-head h3{font-size:1.9rem;font-weight:700;line-height:1.02}
+.ms-eta{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.ms-eta b{font:800 2rem var(--display);line-height:1;color:var(--course)}
+.ms-eta small{font:500 .7rem var(--mono);color:var(--muted)}
+.ms-status{margin:0;font-weight:600}
+.passlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border-top:1px dashed var(--line)}
+.passlist li{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+.passlist li .t{font:700 1rem var(--display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.passlist li.you{color:var(--course);font-weight:700}
+.passlist li.gone{opacity:.45}
+.ms-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
+.ms-grid div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ms-grid p{margin:0;font-size:.92rem}
+.picker{display:flex;flex-direction:column;gap:10px}
+select{font:600 1.05rem var(--body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%;min-width:0}
+.pick-alt{font-size:.9rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px;align-items:baseline}
+.pick-alt button{font:inherit;color:var(--accent);background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.paste{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.paste p{margin:0;font-size:.88rem;color:var(--muted)}
+.paste-row{display:flex;gap:8px;flex-wrap:wrap}
+.paste-row input{flex:1 1 200px;font:500 1rem var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:9px 10px;min-width:0}
+.paste-row button{font:700 1rem var(--body);background:var(--ink);color:var(--surface);border:0;border-radius:6px;padding:9px 14px;cursor:pointer}
+.pick-msg{margin:0;font-size:.88rem;min-height:1.2em}
+.pick-msg.err{color:var(--pink)}
+.ms-warn{margin:0;background:color-mix(in srgb,var(--pink) 14%,transparent);color:var(--ink);border-radius:6px;padding:8px 10px;font-size:.9rem}
+.mapbox svg{cursor:crosshair}
+tr.mine td{background:var(--soft);color:var(--course);font-weight:700}
+
+/* follow toggle */
+.follow{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;gap:14px}
+.follow-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.follow-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.follow-text h2{font-size:1.3rem}
+.follow-text p{margin:0;font-size:.9rem;color:var(--muted)}
+.switch{flex:none;position:relative;width:52px;height:30px;border-radius:15px;border:0;background:var(--line);cursor:pointer;padding:0;transition:background .15s}
+.switch .knob{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+.switch[aria-checked=true]{background:var(--accent)}
+.switch[aria-checked=true] .knob{transform:translateX(22px)}
+@media (prefers-reduced-motion:reduce){.switch,.switch .knob{transition:none}}
+.runner-box{display:flex;flex-direction:column;gap:10px}
+.runner-box .bib{border-color:var(--line)}
+
+/* map */
+.mapbox{background:var(--water);border-radius:10px;border:1px solid var(--line);overflow:hidden}
+.mapbox svg{display:block;width:100%;height:auto;max-height:82vh}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:18px;height:4px;border-radius:2px;background:var(--course)}
+.legend i.pin{width:12px;height:12px;border-radius:50%;background:var(--ink)}
+.legend i.me{width:12px;height:12px;border-radius:50%;background:var(--blue)}
+@keyframes pulse{0%{r:6;opacity:.6}100%{r:16;opacity:0}}
+.pulse{animation:pulse 1.6s ease-out infinite}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none;opacity:0}}
+
+/* spots */
+.spots{display:flex;flex-direction:column;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.spot{display:grid;grid-template-columns:28px 1fr auto;gap:10px;padding:12px 14px;border-top:1px solid var(--line);align-items:start}
+.spot:first-child{border-top:0}
+.spot .n{width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--surface);font:700 .85rem var(--display);display:grid;place-items:center;margin-top:2px}
+.spot h3{font-size:1.15rem;font-weight:700;line-height:1.15}
+.spot .meta{font-size:.85rem;color:var(--muted);min-width:0}
+.spot .meta .train{color:var(--ink)}
+.spot .eta{text-align:right;font:700 1.05rem var(--display);white-space:nowrap}
+.spot .eta small{display:block;font:500 .66rem var(--mono);color:var(--muted);letter-spacing:.04em}
+.tag{display:inline-block;font:600 .62rem var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:2px}
+
+/* schedule */
+.sched{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.sched li{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.sched li:first-child{border-top:0}
+.sched .t{font:700 1.05rem var(--display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sched .what{min-width:0}
+.sched .what b{font-weight:600}
+.sched .what p{margin:2px 0 0;font-size:.85rem;color:var(--muted)}
+.sched li.k-start .t{color:var(--accent)}
+.sched li.mine{background:var(--soft);margin-inline:-10px;padding-inline:10px;border-radius:6px;border-top-color:transparent}
+.sched li.past{opacity:.45}
+.sched li.next .t::after{content:"NEXT";display:block;font:600 .6rem var(--mono);letter-spacing:.08em;color:var(--blue)}
+.chip{display:inline-block;font:600 .6rem var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid currentColor;border-radius:3px;padding:0 4px;margin-left:6px;vertical-align:2px;color:var(--muted)}
+
+/* splits table */
+details{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+summary{cursor:pointer;padding:14px;font:700 1.2rem var(--display);list-style-position:inside}
+.tbl-wrap{overflow-x:auto;padding:0 14px 14px}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{text-align:left;font:500 .68rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:6px 6px 6px 0;border-bottom:1px solid var(--line)}
+td{padding:7px 6px 7px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td.m{font:700 1rem var(--display);width:44px}
+td.e{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+th.e{text-align:right}
+tr.boro td{font:500 .68rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border-bottom:0;padding-top:14px}
+tr.here td{background:var(--soft)}
+
+/* notes */
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:10px}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.note h3{font-size:1.15rem;font-weight:700}
+.note p,.note ul{margin:0;font-size:.92rem}
+.note ul{padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.fine{font-size:.8rem;color:var(--muted);margin:0}
+.fine a{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+    <div class="hero-text">
+      <div class="brand">
+        <span class="brand-emoji" aria-hidden="true">🏃‍♂️</span>
+        <p>NYC <span>Marathon</span></p>
+      </div>
+      <h1>Know where to be, and when.</h1>
+      <p class="dek">Hi neighbor. Tell this page where you're watching. It works out when the race reaches you, which train gets you there, and, if you're following someone, when they'll arrive.</p>
+      <p class="when">Sunday, November 1 · 50 years of the five-borough course · Clocks fall back overnight, so every time here is Eastern Standard Time.</p>
+      <svg class="sig" viewBox="0 0 3087.29 681.93" width="140" height="31" fill="none" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="App by Jon Bobrow"><path d="M1610.11,335.11c0,17.82,19.8,77.22,3.96,110.89M15,537.47C23.66,136.35,107.34,18.040,136.2,15.15c28.86-2.89,86.57,31.74,86.57,484.8M80.58,356.55c65.34-37.62,178.21-25.74,178.21-25.74M320.17,330.81c81.18-15.84,176.23,73.26,47.52,142.57M466.7,328.83c81.18-15.84,160.39,71.28,67.32,134.65M353.83,396.15c-5.94,104.95,29.7,241.57,29.7,241.57M490.46,378.33c-5.94,104.950,13.86,211.87,13.86,211.87M788.37,148.98c-11.88,49.5-26.16,130.64-33.66,199.99-7.92,73.26,38.68,123.77,86.2,90.1s12.8-101.98-40.66-98.06M923.02,537.08c-35.64,27.72-53.4,109.67,2.96,126.69,69.81,21.08,80.2-67.28,76.24-138.57s-19.8-194.05-19.8-194.05M982.42,331.15c1.98,75.24-9.9,118.81-51.48,110.89s-31.68-85.140-23.76-128.71M1388.34,55.92c29.7,142.57,55.95,373.41-47.52,407.9-71.28,23.76-100.98-51.48-93.06-83.16M1507.15,321.25c-45.54-3.96-56.51,138.61,9.9,138.61,73.26,0,47.85-133.59-9.9-138.61ZM2225.92,343.03c-72.62,9.68-56.39,142.67,9.9,138.61,97.02-5.94,49.5-146.53-9.9-138.61ZM2686.12,343.13c-64.18-8.02-87.35,95.19-26.56,112.77,66.28,19.16,73.26-106.93,26.56-112.77ZM1614.07,445.99c19.8-85.14,41.58-116.83,55.44-116.83s37.62,108.91,73.26,128.71M1934.85,172.74c47.52-45.54,186.13-25.74,194.05,33.66,7.92,59.4-39.6,97.02-37.62,122.77s56.36,69.3,38.54,120.79-66.26,57.42-137.55,25.74M2002.17,198.48c-5.94,47.52-1.98,209.89,7.92,241.57M2352.65,182.64c-7.92,55.44-9.84,280.18,67.32,277.21,51.48-1.98,57.42-116.83-17.82-122.77M2590.26,305.41c-35.64,13.86-59.4,27.56-59.4,134.65,0,9.9-15.84-93.06-19.8-116.83M2881.33,392.53s-9.9,67.32,39.6,65.34c69.28-2.77,130.89-59.33,148.51-138.61,15.84-71.28-39.6-83.16-39.6-83.16M2778.37,360.85c-7.92,49.5-1.85,92.77,17.82,95.04,51.48,5.94,85.14-63.36,85.14-63.36"/></svg>
+    </div>
+    <img class="hero-img" width="1440" height="960" alt="Watercolor of three marathon runners in blue, orange and pink running past a glowing fall tree and a MILE 11 sign, with the Verrazzano-Narrows Bridge behind them" src="hero.webp">
+  </header>
+
+  <!-- Your spot -->
+  <section aria-labelledby="spot-h">
+    <div class="sec-head"><h2 id="spot-h">Your Spot</h2><p id="msSub">–</p></div>
+    <div class="picker">
+      <div class="field">
+        <label for="spotSel">Where are you watching from?</label>
+        <select id="spotSel"></select>
+      </div>
+      <div class="pick-alt">
+        <span>Or tap the course on the map below, or</span>
+        <button type="button" id="pasteToggle" aria-expanded="false" aria-controls="pasteBox">paste your location</button>
+      </div>
+      <div id="pasteBox" class="paste" hidden>
+        <p>Copy your coordinates from a maps app and paste them here. In Google Maps, long-press your blue dot to drop a pin, then copy the numbers it shows. In Apple Maps, drop a pin where you are and copy its coordinates.</p>
+        <div class="paste-row">
+          <input id="pasteIn" type="text" inputmode="text" placeholder="40.6887, -73.9665 or a Google Maps link" autocomplete="off">
+          <button type="button" id="pasteGo">Find on course</button>
+        </div>
+      </div>
+      <p class="pick-msg" id="pickMsg" aria-live="polite"></p>
+    </div>
+    <div class="myspot">
+      <div class="ms-head">
+        <div>
+          <div class="eyebrow" id="msArea">–</div>
+          <h3 id="msName">–</h3>
+        </div>
+        <div class="ms-eta"><span class="lbl" id="msEtaLbl">Your runner</span><b class="tnum" id="msEta">–</b><small id="msWindow"></small></div>
+      </div>
+      <p class="ms-warn" id="msWarn" hidden></p>
+      <p class="ms-status" id="msStatus"></p>
+      <ol class="passlist" id="passList"></ol>
+      <div class="ms-grid">
+        <div><span class="lbl">Getting there</span><p id="msTrain"></p></div>
+        <div><span class="lbl">Where they'll be</span><p id="msDir"></p></div>
+        <div><span class="lbl" id="msSpotLbl">Get spotted</span><p id="msSpot"></p></div>
+        <div><span class="lbl" id="msNextLbl">See them again</span><p id="msNext"></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Runner -->
+  <section aria-labelledby="runner-h" class="follow">
+    <div class="follow-row">
+      <div class="follow-text">
+        <h2 id="runner-h">Following a runner?</h2>
+        <p>Add their wave and goal time to see when they'll reach your spot.</p>
+      </div>
+      <button type="button" id="followTog" class="switch" role="switch" aria-checked="false" aria-labelledby="runner-h"><span class="knob" aria-hidden="true"></span></button>
+    </div>
+    <div id="runnerBox" class="runner-box" hidden>
+    <div class="bib">
+      <div class="bib-top">
+        <div class="field" style="flex:1">
+          <label for="name">Following</label>
+          <input id="name" type="text" placeholder="Runner's name" autocomplete="off">
+        </div>
+        <div class="field" style="text-align:right">
+          <span class="lbl">Starts</span>
+          <span id="startTime" class="goal-val tnum" style="font-size:1.5rem">10:20</span>
+        </div>
+      </div>
+      <div class="field">
+        <span class="lbl" id="wave-lbl">Start wave</span>
+        <div class="waves" role="group" aria-labelledby="wave-lbl" id="waves"></div>
+      </div>
+      <div class="field">
+        <div class="goal-row">
+          <label for="goal">Goal finish time</label>
+          <span class="goal-val tnum" id="goalVal">4:30</span>
+        </div>
+        <input id="goal" type="range" min="150" max="480" step="5" value="270">
+      </div>
+      <div class="status" aria-live="polite">
+        <span class="dot" aria-hidden="true"></span>
+        <div><b id="statusMain">Race day is tomorrow</b><span id="statusSub"></span></div>
+      </div>
+      <div class="bignums">
+        <div><span class="lbl">At your spot</span><b class="tnum" id="bnSpot" style="color:var(--accent)">–</b></div>
+        <div><span class="lbl">Halfway</span><b class="tnum" id="bnHalf">–</b></div>
+        <div><span class="lbl">Finish</span><b class="tnum" id="bnFin">–</b></div>
+      </div>
+    </div>
+    <p class="fine">Times assume an even pace from the wave's start gun. Runners in back corrals can cross the start mat several minutes later, so arrive at your spot a little early. For live splits, follow them in the TCS New York City Marathon app.</p>
+    </div>
+  </section>
+
+  <!-- Map -->
+  <section aria-labelledby="map-h">
+    <div class="sec-head"><h2 id="map-h">The Course</h2><p>Tap the course to set your spot</p></div>
+    <div class="mapbox"><svg id="map" role="img" aria-label="Map of the marathon course from Staten Island through Brooklyn, Queens, Manhattan and the Bronx to Central Park"></svg></div>
+    <div class="legend">
+      <span><i></i>Course with mile markers</span>
+      <span><i class="pin" style="background:var(--course)"></i>Your spot</span>
+      <span><i class="pin"></i>Other cheer spots</span>
+      <span id="legendMe" hidden><i class="me"></i>Your runner (estimate)</span>
+    </div>
+  </section>
+
+  <!-- Spots -->
+  <section aria-labelledby="spots-h">
+    <div class="sec-head"><h2 id="spots-h">Where to Watch</h2><p id="spotsSub">When the race comes through</p></div>
+    <div class="spots" id="spots"></div>
+    <p class="fine">No spectators at the start or on the Verrazzano-Narrows Bridge, no chairs on the course, and no access north of the grandstands in Central Park. Cell service gets unreliable on First Avenue and near the finish, so agree on a meeting spot ahead of time.</p>
+  </section>
+
+  <!-- Schedule -->
+  <section aria-labelledby="sched-h">
+    <div class="sec-head"><h2 id="sched-h">Race-Day Schedule</h2><p>Sunday, Nov 1 · EST</p></div>
+    <ol class="sched" id="sched"></ol>
+    <p class="fine">Elite finish times are rough estimates. Most listings put the professional women's start at 8:35; one lists 8:40. NYRR says start times can change, so check the app in the morning.</p>
+  </section>
+
+  <!-- Splits -->
+  <details id="splits">
+    <summary>Mile by mile</summary>
+    <div class="tbl-wrap"><table>
+      <thead id="splitHead"></thead>
+      <tbody id="splitBody"></tbody>
+    </table></div>
+  </details>
+
+  <!-- Notes -->
+  <section aria-labelledby="notes-h">
+    <h2 id="notes-h">Good to Know</h2>
+    <div class="notes">
+      <div class="note"><h3>Weather</h3><p>Sunny with light winds. Low 50s at the start, warming into the low 60s by midday and afternoon.</p></div>
+      <div class="note"><h3>Watch at home</h3><ul>
+        <li>WABC Channel 7: pre-race from 7:00, live race 8:00 AM–1:00 PM</li>
+        <li>ESPN2 and ESPN app: 8:00–11:30 AM</li>
+        <li>ESPN Unlimited adds 7–8 AM and 11:30 AM–1 PM</li>
+        <li>ABC7NY.com finish-line camera from 10:30 AM</li>
+      </ul></div>
+      <div class="note"><h3>New this year</h3><p>The first course change in 15 years, in the Bronx between miles 20 and 21. After the Willis Avenue Bridge, runners go up Alexander Ave to E 141st St, then Third Ave and E 138th St to the Madison Avenue Bridge. Morris Ave, E 140th St and Rider Ave are no longer on the route. The 6 train to 3 Av–138 St puts you right on it.</p></div>
+      <div class="note"><h3>Getting around</h3><ul>
+        <li>Take the subway. Driving between boroughs is close to impossible during the race.</li>
+        <li>Verrazzano upper level closed until 4 PM</li>
+        <li>Pulaski, Willis Ave and Madison Ave bridges closed to cars until 6:30 PM; Queensboro lower level until 5:30 PM</li>
+        <li>First Ave (59th St up) closed 7 AM–10:30 PM; Fifth Ave (138th–90th) 9 AM–7:30 PM</li>
+      </ul></div>
+      <div class="note"><h3>Cutoffs</h3><p>The sweep follows the last wave at a 16-minute-mile pace and roads reopen behind it. Official finish times are recorded until 10:00 PM.</p></div>
+    </div>
+  </section>
+
+  <p class="fine">Compiled Oct 31 from NYRR race information as reported by FOX 5 NY, ABC7, ESPN, Marathon Handbook and The Running Channel. Check the official app for last-minute changes.</p>
+</div>
+
+<script>
+(function(){
+  // ---------- data ----------
+  const WAVES = {1:{s:550,o:490,c:525},2:{s:585,o:545,c:565},3:{s:620,o:585,c:600},4:{s:655,o:625,c:640},5:{s:690,o:660,c:675}};
+  const RACE_DATE = "2026-11-01";
+  const MARATHON = 26.219;
+
+  // [lat, lon, anchor mile or null]
+  const WP = [
+    [40.6025,-74.0640,0],[40.6045,-74.0555,null],[40.6085,-74.0450,1],[40.6125,-74.0350,null],[40.6145,-74.0310,2],
+    [40.6175,-74.0290,null],[40.6290,-74.0235,3],[40.6395,-74.0175,4],[40.6505,-74.0085,5],[40.6610,-73.9985,6],
+    [40.6715,-73.9880,7],[40.6830,-73.9785,8],[40.6870,-73.9750,null],[40.6885,-73.9620,9],[40.6893,-73.9555,null],
+    [40.6990,-73.9565,10],[40.7085,-73.9640,null],[40.7130,-73.9620,11],[40.7180,-73.9575,null],[40.7230,-73.9520,null],
+    [40.7290,-73.9540,12],[40.7330,-73.9505,null],[40.7380,-73.9525,13.11],[40.7440,-73.9530,null],[40.7470,-73.9485,14],
+    [40.7505,-73.9420,null],[40.7520,-73.9405,15],[40.7560,-73.9510,null],[40.7600,-73.9600,null],[40.7605,-73.9592,16],
+    [40.7715,-73.9520,17],[40.7865,-73.9410,18],[40.7990,-73.9325,19],[40.8020,-73.9305,null],[40.8063,-73.9272,20],
+    [40.8075,-73.9255,null],[40.8125,-73.9230,null],[40.8128,-73.9262,null],[40.8105,-73.9275,null],[40.8152,-73.9325,null],
+    [40.8135,-73.9360,21],[40.8115,-73.9395,null],[40.8055,-73.9435,22],[40.8030,-73.9450,null],[40.7965,-73.9495,null],
+    [40.7930,-73.9520,23],[40.7840,-73.9585,24],[40.7775,-73.9650,null],[40.7700,-73.9710,25],[40.7655,-73.9735,null],
+    [40.7665,-73.9775,null],[40.7680,-73.9815,26],[40.7700,-73.9800,null],[40.7720,-73.9775,26.219]
+  ];
+
+  const MILES = [
+    {m:1,b:"Staten Island",w:"Verrazzano-Narrows Bridge, the big opening climb"},
+    {m:2,b:"Brooklyn",w:"Off the bridge into Bay Ridge"},
+    {m:3,w:"Fourth Ave, Bay Ridge"},{m:4,w:"Fourth Ave, Sunset Park"},{m:5,w:"Fourth Ave, Sunset Park"},
+    {m:6,w:"Fourth Ave, Park Slope"},{m:7,w:"Fourth Ave, Park Slope"},{m:8,w:"Atlantic Ave by Barclays Center"},
+    {m:9,w:"Lafayette Ave, Fort Greene and Clinton Hill"},{m:10,w:"Bedford Ave, Bedford-Stuyvesant"},
+    {m:11,w:"Bedford Ave, Williamsburg"},{m:12,w:"Manhattan Ave, Greenpoint"},
+    {m:13.11,b:"Queens",w:"Halfway, on the Pulaski Bridge",label:"13.1"},{m:14,w:"Long Island City"},
+    {m:15,w:"Queensboro Bridge, the quiet climb"},
+    {m:16,b:"Manhattan",w:"First Ave at 59th St, the wall of noise"},{m:17,w:"First Ave, Upper East Side"},
+    {m:18,w:"First Ave, Yorkville"},{m:19,w:"First Ave, East Harlem"},
+    {m:20,b:"The Bronx",w:"Willis Ave Bridge into Mott Haven (new route)"},
+    {m:21,b:"Manhattan",w:"Madison Ave Bridge back to Manhattan"},{m:22,w:"Fifth Ave, Harlem, around Marcus Garvey Park"},
+    {m:23,w:"Fifth Ave, the long gradual climb"},{m:24,w:"Into Central Park at E 90th St"},
+    {m:25,w:"East Drive, Central Park"},{m:26,w:"Central Park South to Columbus Circle"},
+    {m:26.219,w:"Finish near Tavern on the Green",label:"26.2"}
+  ];
+
+  const SPOTS = [
+    {a:3,b:7,at:5.5,name:"Fourth Avenue",area:"Bay Ridge to Park Slope, Brooklyn",train:"R local under the avenue; D, N, R at 36 St",tip:"Long and roomy. An easy first sighting."},
+    {a:8,b:8,at:8.1,name:"Atlantic Ave & Flatbush",area:"Barclays Center, Brooklyn",train:"2, 3, 4, 5, B, D, N, Q, R to Atlantic Av–Barclays Ctr",tip:"Big crowds and every train line."},
+    {a:11,b:12,at:11.5,name:"Bedford Avenue",area:"Williamsburg and Greenpoint",train:"L to Bedford Av; G to Nassau Av",tip:"One of NYRR's recommended cheer areas."},
+    {a:14,b:14,at:14.2,name:"Long Island City",area:"Jackson Ave, Queens",train:"7 to Vernon Blvd–Jackson Av",tip:"Quieter, and close to the Queensboro."},
+    {a:16,b:19,at:17.5,name:"First Avenue",area:"Upper East Side",train:"Q to 72, 86 or 96 St; 4, 5, 6 on Lexington",tip:"Loudest stretch. Pick a side and a cross street in advance."},
+    {a:20,b:21,at:20.4,name:"Mott Haven",area:"The Bronx, on the new route",train:"6 to 3 Av–138 St",tip:"Mile 20 is where runners need you most.",isNew:true},
+    {a:22,b:23,at:22.5,name:"Fifth Avenue, Harlem",area:"Marcus Garvey Park",train:"2, 3 to 125 St or 116 St",tip:"Good for a late boost before the park."},
+    {a:24,b:25,at:24.5,name:"Central Park, east side",area:"Fifth Ave and East Drive",train:"4, 5, 6 to 86 St",tip:"Enter the park on foot from Fifth Ave."},
+    {a:26,b:26,at:25.75,name:"Central Park South",area:"Last mile to Columbus Circle",train:"N, Q, R, W to 5 Av/59 St; A, B, C, D, 1 to 59 St–Columbus Circle",tip:"Packed. Get there early, and plan your meet-up after."}
+  ];
+
+  // Cross streets people can pick. Mile is computed by snapping each to the course line.
+  const PRESETS = [
+    {id:"4-86",b:"Brooklyn",n:"Fourth Ave & 86th St",a:"Bay Ridge",ll:[40.6223,-74.0281],tr:"<b>R</b> to 86 St, right on Fourth Ave."},
+    {id:"4-59",b:"Brooklyn",n:"Fourth Ave & 59th St",a:"Sunset Park",ll:[40.6413,-74.0178],tr:"<b>N</b> or <b>R</b> to 59 St, right on Fourth Ave."},
+    {id:"4-45",b:"Brooklyn",n:"Fourth Ave & 45th St",a:"Sunset Park",ll:[40.6489,-74.0101],tr:"<b>R</b> to 45 St, right on Fourth Ave."},
+    {id:"4-36",b:"Brooklyn",n:"Fourth Ave & 36th St",a:"Sunset Park",ll:[40.6552,-74.0035],tr:"<b>D</b>, <b>N</b> or <b>R</b> to 36 St, right on Fourth Ave."},
+    {id:"4-25",b:"Brooklyn",n:"Fourth Ave & 25th St",a:"Greenwood Heights",ll:[40.6604,-73.9980],tr:"<b>R</b> to 25 St, right on Fourth Ave."},
+    {id:"4-9",b:"Brooklyn",n:"Fourth Ave & 9th St",a:"Park Slope",ll:[40.6706,-73.9887],tr:"<b>F</b>, <b>G</b> or <b>R</b> to 4 Av–9 St."},
+    {id:"4-un",b:"Brooklyn",n:"Fourth Ave & Union St",a:"Park Slope",ll:[40.6773,-73.9831],tr:"<b>R</b> to Union St, right on Fourth Ave."},
+    {id:"atl",b:"Brooklyn",n:"Atlantic Ave & Flatbush Ave",a:"Barclays Center",ll:[40.6835,-73.9780],tr:"<b>2</b>, <b>3</b>, <b>4</b>, <b>5</b>, <b>B</b>, <b>D</b>, <b>N</b>, <b>Q</b>, <b>R</b> to Atlantic Av–Barclays Ctr."},
+    {id:"laf-sp",b:"Brooklyn",n:"Lafayette Ave & S Portland Ave",a:"Fort Greene",ll:[40.6873,-73.9738],tr:"<b>C</b> to Lafayette Av or <b>G</b> to Fulton St, each a few blocks away."},
+    {id:"laf-wa",b:"Brooklyn",n:"Lafayette Ave & Washington Ave",a:"Clinton Hill",ll:[40.6887,-73.9665],tr:"<b>G</b> to Clinton–Washington Avs, under Lafayette Ave steps from the corner. The <b>C</b> stop of the same name is on Fulton St, two blocks south."},
+    {id:"laf-bd",b:"Brooklyn",n:"Lafayette Ave & Bedford Ave",a:"Bedford-Stuyvesant",ll:[40.6893,-73.9555],tr:"<b>G</b> to Bedford–Nostrand Avs, under Lafayette Ave."},
+    {id:"bd-my",b:"Brooklyn",n:"Bedford Ave & Myrtle Ave",a:"Bedford-Stuyvesant",ll:[40.6955,-73.9558],tr:"<b>G</b> to Myrtle–Willoughby Avs, a few blocks west."},
+    {id:"bd-dv",b:"Brooklyn",n:"Bedford Ave & Division Ave",a:"South Williamsburg",ll:[40.7085,-73.9640],tr:"<b>J</b>, <b>M</b> or <b>Z</b> to Marcy Av."},
+    {id:"bd-n7",b:"Brooklyn",n:"Bedford Ave & N 7th St",a:"Williamsburg",ll:[40.7173,-73.9568],tr:"<b>L</b> to Bedford Av, right at the corner."},
+    {id:"mn-na",b:"Brooklyn",n:"Manhattan Ave & Nassau Ave",a:"Greenpoint",ll:[40.7243,-73.9510],tr:"<b>G</b> to Nassau Av."},
+    {id:"mcg",b:"Brooklyn",n:"McGuinness Blvd & Greenpoint Ave",a:"Greenpoint",ll:[40.7320,-73.9505],tr:"<b>G</b> to Greenpoint Av."},
+    {id:"jk-11",b:"Queens",n:"Jackson Ave & 11th St",a:"Long Island City",ll:[40.7445,-73.9520],tr:"<b>7</b> to Vernon Blvd–Jackson Av."},
+    {id:"44-21",b:"Queens",n:"44th Dr & 21st St",a:"Long Island City",ll:[40.7490,-73.9455],tr:"<b>E</b> or <b>M</b> to Court Sq–23 St; <b>G</b> to 21 St."},
+    {id:"qp",b:"Queens",n:"Crescent St by Queens Plaza",a:"Long Island City",ll:[40.7512,-73.9410],tr:"<b>E</b>, <b>M</b> or <b>R</b> to Queens Plaza; <b>7</b>, <b>N</b> or <b>W</b> to Queensboro Plaza."},
+    {id:"1-61",b:"Manhattan · First Ave",n:"First Ave & 61st St",a:"Upper East Side",ll:[40.7605,-73.9595],tr:"<b>4</b>, <b>5</b>, <b>6</b> to 59 St; <b>N</b>, <b>R</b>, <b>W</b> to Lexington Av/59 St."},
+    {id:"1-68",b:"Manhattan · First Ave",n:"First Ave & 68th St",a:"Upper East Side",ll:[40.7653,-73.9560],tr:"<b>6</b> to 68 St–Hunter College, then walk east."},
+    {id:"1-72",b:"Manhattan · First Ave",n:"First Ave & 72nd St",a:"Upper East Side",ll:[40.7678,-73.9545],tr:"<b>Q</b> to 72 St on Second Ave, one block west."},
+    {id:"1-79",b:"Manhattan · First Ave",n:"First Ave & 79th St",a:"Upper East Side",ll:[40.7722,-73.9513],tr:"<b>6</b> to 77 St; <b>Q</b> to 72 St or 86 St."},
+    {id:"1-86",b:"Manhattan · First Ave",n:"First Ave & 86th St",a:"Yorkville",ll:[40.7765,-73.9480],tr:"<b>Q</b> to 86 St on Second Ave; <b>4</b>, <b>5</b>, <b>6</b> to 86 St."},
+    {id:"1-96",b:"Manhattan · First Ave",n:"First Ave & 96th St",a:"Yorkville",ll:[40.7830,-73.9433],tr:"<b>Q</b> to 96 St on Second Ave."},
+    {id:"1-106",b:"Manhattan · First Ave",n:"First Ave & 106th St",a:"East Harlem",ll:[40.7894,-73.9387],tr:"<b>6</b> to 103 St, then walk east."},
+    {id:"1-116",b:"Manhattan · First Ave",n:"First Ave & 116th St",a:"East Harlem",ll:[40.7955,-73.9343],tr:"<b>6</b> to 116 St, then walk east."},
+    {id:"bx-135",b:"The Bronx",n:"E 135th St & Alexander Ave",a:"Mott Haven",ll:[40.8075,-73.9255],tr:"<b>6</b> to 3 Av–138 St."},
+    {id:"bx-138",b:"The Bronx",n:"E 138th St & Third Ave",a:"Mott Haven",ll:[40.8105,-73.9275],tr:"<b>6</b> to 3 Av–138 St, right on the new route."},
+    {id:"5-135",b:"Manhattan · Harlem and the park",n:"Fifth Ave & 135th St",a:"Harlem",ll:[40.8115,-73.9395],tr:"<b>2</b> or <b>3</b> to 135 St on Lenox Ave, two blocks west."},
+    {id:"mgp",b:"Manhattan · Harlem and the park",n:"Marcus Garvey Park, Fifth Ave & 124th St",a:"Harlem",ll:[40.8055,-73.9435],tr:"<b>2</b> or <b>3</b> to 125 St."},
+    {id:"5-116",b:"Manhattan · Harlem and the park",n:"Fifth Ave & 116th St",a:"Harlem",ll:[40.8005,-73.9470],tr:"<b>2</b> or <b>3</b> to 116 St; <b>6</b> to 116 St."},
+    {id:"5-110",b:"Manhattan · Harlem and the park",n:"Fifth Ave & 110th St",a:"Top of Central Park",ll:[40.7965,-73.9495],tr:"<b>2</b> or <b>3</b> to Central Park North–110 St; <b>6</b> to 110 St."},
+    {id:"5-100",b:"Manhattan · Harlem and the park",n:"Fifth Ave & 100th St",a:"East Harlem",ll:[40.7905,-73.9540],tr:"<b>6</b> to 103 St, then walk west."},
+    {id:"5-90",b:"Manhattan · Harlem and the park",n:"Fifth Ave & 90th St",a:"Park entrance, Carnegie Hill",ll:[40.7840,-73.9585],tr:"<b>4</b>, <b>5</b>, <b>6</b> to 86 St."},
+    {id:"ed-72",b:"Manhattan · Harlem and the park",n:"East Drive near 72nd St",a:"Central Park",ll:[40.7740,-73.9680],tr:"<b>6</b> to 68 St or 77 St, then walk into the park."},
+    {id:"cps-6",b:"Manhattan · Harlem and the park",n:"Central Park South & Sixth Ave",a:"Last mile",ll:[40.7660,-73.9765],tr:"<b>F</b> to 57 St; <b>N</b>, <b>Q</b>, <b>R</b>, <b>W</b> to 57 St–7 Av."},
+    {id:"cc",b:"Manhattan · Harlem and the park",n:"Columbus Circle",a:"Mile 26",ll:[40.7680,-73.9815],tr:"<b>A</b>, <b>B</b>, <b>C</b>, <b>D</b>, <b>1</b> to 59 St–Columbus Circle."}
+  ];
+  // What runners are doing on each stretch, by mile
+  const STRETCH = [
+    {a:0,b:2.05,no:true,d:"Runners are on the Verrazzano-Narrows Bridge. Spectators aren't allowed at the start or on the bridge."},
+    {a:2.05,b:8.2,d:"Runners head north on Fourth Ave from Bay Ridge.",look:"south down Fourth Ave"},
+    {a:8.2,b:9.6,d:"Runners head east on Lafayette Ave, coming from Flatbush Ave and Fort Greene and going toward Bedford Ave.",look:"west down Lafayette toward Fort Greene"},
+    {a:9.6,b:11.9,d:"Runners head north on Bedford Ave toward Williamsburg.",look:"south down Bedford Ave"},
+    {a:11.9,b:12.95,d:"Runners head north through Greenpoint on Manhattan Ave and McGuinness Blvd to the Pulaski Bridge.",look:"south, back toward Williamsburg"},
+    {a:12.95,b:13.3,no:true,d:"Runners are on the Pulaski Bridge at halfway. Don't count on standing on the bridge."},
+    {a:13.3,b:15.0,d:"Runners wind through Long Island City from the Pulaski Bridge toward the Queensboro Bridge.",look:"toward the Pulaski Bridge"},
+    {a:15.0,b:15.95,no:true,d:"Runners are on the Queensboro Bridge, the quietest part of the course. No spectators on the bridge."},
+    {a:15.95,b:19.65,d:"Runners come off the Queensboro and head north on First Ave.",look:"south down First Ave"},
+    {a:19.65,b:20.0,no:true,d:"Runners are crossing the Willis Avenue Bridge into the Bronx."},
+    {a:20.0,b:20.85,d:"Runners loop through Mott Haven on the new route: Alexander Ave, E 141st St, Third Ave, then E 138th St.",look:"for runners coming off the Willis Ave Bridge"},
+    {a:20.85,b:21.05,no:true,d:"Runners are crossing the Madison Avenue Bridge back into Manhattan."},
+    {a:21.05,b:24.05,d:"Runners head south on Fifth Ave through Harlem, then along the edge of Central Park.",look:"north up Fifth Ave"},
+    {a:24.05,b:25.3,d:"Runners head south on East Drive inside Central Park.",look:"north up East Drive"},
+    {a:25.3,b:26.05,d:"Runners head west on Central Park South to Columbus Circle, then turn back into the park.",look:"east along Central Park South"},
+    {a:26.05,b:26.3,no:true,d:"This is the finish area. There's no spectator access north of the grandstands."}
+  ];
+  const SPLITS = [[3.107,"5K"],[6.214,"10K"],[9.321,"15K"],[12.427,"20K"],[13.109,"half"],[15.534,"25K"],[18.641,"30K"],[21.748,"35K"],[24.855,"40K"]];
+
+  const SCHED = [
+    {t:120,k:"info",w:"Clocks fall back one hour",p:"Phones update themselves. Check watches and alarm clocks."},
+    {t:300,k:"info",w:"Staten Island roads close",p:"Fort Wadsworth area, School Rd and Bay St."},
+    {t:420,k:"tv",w:"TV pre-race coverage",p:"WABC Channel 7. ESPN Unlimited also streams 7–8 AM."},
+    {t:480,k:"start",w:"Men's professional wheelchair start",p:"Live coverage begins on Channel 7 and ESPN2."},
+    {t:482,k:"start",w:"Women's professional wheelchair start"},
+    {t:490,k:"corral",wave:1,w:"Wave 1 corrals open",p:"Close at 8:45."},
+    {t:502,k:"start",w:"Handcycles and select athletes with disabilities"},
+    {t:515,k:"start",w:"Professional women start"},
+    {t:545,k:"start",w:"Professional men start"},
+    {t:545,k:"corral",wave:2,w:"Wave 2 corrals open",p:"Close at 9:25."},
+    {t:550,k:"start",wave:1,w:"Wave 1 starts"},
+    {t:565,k:"elite",w:"Men's wheelchair winner finishes",p:"Approx."},
+    {t:585,k:"start",wave:2,w:"Wave 2 starts"},
+    {t:585,k:"corral",wave:3,w:"Wave 3 corrals open",p:"Close at 10:00."},
+    {t:585,k:"elite",w:"Women's wheelchair winner finishes",p:"Approx."},
+    {t:620,k:"start",wave:3,w:"Wave 3 starts"},
+    {t:625,k:"corral",wave:4,w:"Wave 4 corrals open",p:"Close at 10:40."},
+    {t:655,k:"start",wave:4,w:"Wave 4 starts"},
+    {t:655,k:"elite",w:"Professional women's winner finishes",p:"Approx. 10:50–10:55."},
+    {t:660,k:"corral",wave:5,w:"Wave 5 corrals open",p:"Close at 11:15."},
+    {t:670,k:"elite",w:"Professional men's winner finishes",p:"Approx."},
+    {t:690,k:"start",wave:5,w:"Wave 5 starts",p:"ESPN2 coverage ends; ESPN Unlimited continues to 1 PM."},
+    {t:780,k:"tv",w:"Channel 7 live coverage ends",p:"The finish-line camera keeps going online."},
+    {t:960,k:"info",w:"Verrazzano-Narrows Bridge reopens"},
+    {t:1320,k:"info",w:"Official timing ends at the finish"}
+  ];
+
+  // ---------- helpers ----------
+  const $ = id => document.getElementById(id);
+  const fmt = min => { min = Math.round(min); let h = Math.floor(min/60)%24, m = min%60; const ap = h>=12?"PM":"AM"; h = h%12||12; return h+":"+String(m).padStart(2,"0")+" "+ap; };
+  const dur = min => Math.floor(min/60)+":"+String(Math.round(min%60)).padStart(2,"0");
+  const pace = min => { const p = min/MARATHON; const s = Math.round((p%1)*60); return Math.floor(p)+":"+String(s===60?0:s).padStart(2,"0"); };
+  const store = {
+    get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+    set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+  };
+
+  // ---------- state ----------
+  const state = {
+    wave: +(store.get("nyc26.wave")||3),
+    goal: +(store.get("nyc26.goal")||270),
+    name: store.get("nyc26.name")||"",
+    follow: (()=>{ const f=store.get("nyc26.follow"); return f===null ? !!(store.get("nyc26.name")||"").trim() : f==="1"; })(),
+    spot: (()=>{ try{ return JSON.parse(store.get("nyc26.spot")||"null"); }catch(e){ return null; } })() || {id:"laf-wa"}
+  };
+  if(!WAVES[state.wave]) state.wave = 3;
+  if(!(state.goal>=150 && state.goal<=480)) state.goal = 270;
+
+  const eta = mile => WAVES[state.wave].s + state.goal/MARATHON*mile;
+
+  function nowET(){
+    const parts = new Intl.DateTimeFormat("en-CA",{timeZone:"America/New_York",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date());
+    const g = t => parts.find(p=>p.type===t).value;
+    return {date:g("year")+"-"+g("month")+"-"+g("day"), min:(+g("hour")%24)*60 + +g("minute")};
+  }
+
+  // ---------- map ----------
+  const LON0=-74.082, LAT1=40.828, KX=2236, KY=2950, W=380, H=679;
+  const P = (lat,lon) => [ (lon-LON0)*KX, (LAT1-lat)*KY ];
+  const pts = WP.map(w=>P(w[0],w[1]));
+  // assign miles by distance between anchors
+  const cum=[0]; for(let i=1;i<pts.length;i++){ cum.push(cum[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1])); }
+  const wm = WP.map(w=>w[2]);
+  let lastA=0;
+  for(let i=1;i<WP.length;i++){ if(wm[i]!==null){ for(let k=lastA+1;k<i;k++){ wm[k]=wm[lastA]+(wm[i]-wm[lastA])*(cum[k]-cum[lastA])/(cum[i]-cum[lastA]); } lastA=i; } }
+  function at(mile){
+    mile=Math.max(0,Math.min(MARATHON,mile));
+    for(let i=1;i<pts.length;i++){ if(mile<=wm[i]){ const f=(mile-wm[i-1])/((wm[i]-wm[i-1])||1); return [pts[i-1][0]+(pts[i][0]-pts[i-1][0])*f, pts[i-1][1]+(pts[i][1]-pts[i-1][1])*f]; } }
+    return pts[pts.length-1];
+  }
+  // px to miles (projection is ~0.02655 px per meter in both axes)
+  const PX_MI = 0.02655*1609.34;
+  function snap(lat,lon){
+    const [x,y]=P(lat,lon); let best={d:1e9,mile:0};
+    for(let i=1;i<pts.length;i++){
+      const [ax,ay]=pts[i-1],[bx,by]=pts[i]; const dx=bx-ax, dy=by-ay; const L=dx*dx+dy*dy||1;
+      let t=((x-ax)*dx+(y-ay)*dy)/L; t=Math.max(0,Math.min(1,t));
+      const d=Math.hypot(x-(ax+dx*t),y-(ay+dy*t));
+      if(d<best.d) best={d,mile:wm[i-1]+(wm[i]-wm[i-1])*t};
+    }
+    return {mile:best.mile, distMi:best.d/PX_MI};
+  }
+  const poly = arr => arr.map(([la,lo])=>P(la,lo).map(n=>n.toFixed(1)).join(",")).join(" ");
+  const segPts = (a,b) => { const out=[at(a)]; for(let i=0;i<pts.length;i++) if(wm[i]>a&&wm[i]<b) out.push(pts[i]); out.push(at(b)); return out.map(p=>p.map(n=>n.toFixed(1)).join(",")).join(" "); };
+
+  const LAND = {
+    nj:[[40.828,-74.09],[40.828,-73.968],[40.790,-73.995],[40.760,-74.017],[40.735,-74.027],[40.710,-74.035],[40.690,-74.045],[40.665,-74.063],[40.648,-74.09]],
+    si:[[40.645,-74.09],[40.645,-74.072],[40.625,-74.067],[40.612,-74.057],[40.598,-74.063],[40.596,-74.09]],
+    bk:[[40.6130,-74.0365],[40.6300,-74.0300],[40.6450,-74.0250],[40.6600,-74.0170],[40.6750,-74.0180],[40.6850,-74.0050],[40.6995,-73.9960],[40.7035,-73.9720],[40.7150,-73.9680],[40.7300,-73.9620],[40.7450,-73.9580],[40.7550,-73.9445],[40.7720,-73.9350],[40.7850,-73.9180],[40.7850,-73.900],[40.596,-73.900],[40.596,-74.0250],[40.6060,-74.0340]],
+    mn:[[40.7005,-74.0160],[40.7100,-74.0170],[40.7350,-74.0110],[40.7600,-74.0030],[40.7900,-73.9800],[40.8100,-73.9650],[40.830,-73.9540],[40.830,-73.9375],[40.8140,-73.9340],[40.8040,-73.9290],[40.7990,-73.9290],[40.7830,-73.9405],[40.7720,-73.9480],[40.7590,-73.9575],[40.7450,-73.9715],[40.7280,-73.9710],[40.7110,-73.9770],[40.7090,-73.9990]],
+    bx:[[40.830,-73.9335],[40.8140,-73.9320],[40.8065,-73.9265],[40.8040,-73.9150],[40.830,-73.9150]],
+    park:[[40.7968,-73.9496],[40.8005,-73.9580],[40.7681,-73.9819],[40.7644,-73.9730]]
+  };
+  const BRIDGES = [{a:0.35,b:1.85,n:"Verrazzano-Narrows Br.",x:[40.6010,-74.0455],anc:"start"},{a:12.95,b:13.3,n:"Pulaski Br.",x:[40.7385,-73.9580],anc:"end"},{a:15,b:15.95,n:"Queensboro Br.",x:[40.7520,-73.9480],anc:"end"},{a:19.65,b:20,n:"Willis Ave Br.",x:[40.8010,-73.9255],anc:"start"},{a:20.85,b:21,n:"Madison Ave Br.",x:[40.8170,-73.9385],anc:"end"}];
+  const BORO = [["STATEN","ISLAND",40.6280,-74.0800,"start"],["BROOKLYN",null,40.6650,-73.9620,"start"],["QUEENS",null,40.7640,-73.9300,"start"],["MANHATTAN",null,40.7330,-73.9930,"middle",-62],["BRONX",null,40.8215,-73.9250,"start"],["NEW JERSEY",null,40.6950,-74.0700,"start"]];
+  const LBL_OFF = {1:[8,-6],2:[8,10],13.11:[-34,4],15:[2,-9],16:[-14,-6],20:[9,4],21:[-14,-4],22:[8,4],24:[-16,4],25:[8,4],26:[-12,-6],26.219:[6,-8],12:[-15,4],14:[8,6],11:[8,4],10:[8,4],9:[-4,-8],8:[-14,-4]};
+
+  PRESETS.forEach(p=>{ p.m = snap(p.ll[0],p.ll[1]).mile; });
+  const stretchAt = m => STRETCH.find(r=>m>=r.a&&m<r.b) || STRETCH[STRETCH.length-1];
+  const nearestPreset = (lat,lon) => PRESETS.reduce((a,b)=>{ const da=Math.hypot((a.ll[0]-lat)*111,(a.ll[1]-lon)*84.3), db=Math.hypot((b.ll[0]-lat)*111,(b.ll[1]-lon)*84.3); return db<da?b:a; });
+  function curSpot(){
+    const sp = state.spot;
+    if(sp && sp.id){ const p = PRESETS.find(x=>x.id===sp.id); if(p) return {name:p.n, area:p.a+", "+p.b.split(" ·")[0], mile:p.m, train:p.tr, ll:p.ll}; }
+    if(sp && sp.ll){
+      const sn = snap(sp.ll[0],sp.ll[1]); const np = nearestPreset(sp.ll[0],sp.ll[1]);
+      const npKm = Math.hypot((np.ll[0]-sp.ll[0])*111,(np.ll[1]-sp.ll[1])*84.3);
+      return {name: npKm<0.35 ? "Near "+np.n : "Mile "+sn.mile.toFixed(1), area:(sp.src==="paste"?"From your location":"Picked on the map")+" · nearest listed: "+np.n, mile:sn.mile, train:"Nearest listed stop: "+np.n+". "+np.tr, ll:sp.ll, custom:true, off:sn.distMi};
+    }
+    const p = PRESETS.find(x=>x.id==="laf-wa"); return {name:p.n, area:p.a+", Brooklyn", mile:p.m, train:p.tr, ll:p.ll};
+  }
+
+  function drawMap(){
+    const svg = $("map");
+    svg.setAttribute("viewBox","0 0 "+W+" "+H);
+    let s = "";
+    s += '<rect width="'+W+'" height="'+H+'" fill="var(--water)"/>';
+    ["nj","si","bk","bx"].forEach(k=>{ s += '<polygon points="'+poly(LAND[k])+'" fill="'+(k==="nj"?"var(--land-2)":"var(--land)")+'" stroke="var(--line)" stroke-width="1"/>'; });
+    s += '<polygon points="'+poly(LAND.mn)+'" fill="var(--land)" stroke="var(--line)" stroke-width="1"/>';
+    s += '<polygon points="'+poly(LAND.park)+'" fill="color-mix(in srgb, #3f9d62 22%, var(--land))" stroke="none"/>';
+    BORO.forEach(([a,b,la,lo,anc,rot])=>{
+      const [x,y]=P(la,lo); const muted = a==="NEW JERSEY";
+      s += '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+anc+'" '+(rot?'transform="rotate('+rot+' '+x.toFixed(1)+' '+y.toFixed(1)+')" ':'')+'font-family="Archivo, Arial Narrow, sans-serif" font-stretch="88%" font-weight="800" font-size="'+(muted?11:15)+'" letter-spacing="2" fill="var(--muted)" opacity="'+(muted?.55:.8)+'">'+a+(b?'<tspan x="'+x.toFixed(1)+'" dy="15">'+b+'</tspan>':'')+'</text>';
+    });
+    // route casing + line
+    const all = pts.map(p=>p.map(n=>n.toFixed(1)).join(",")).join(" ");
+    s += '<polyline points="'+all+'" fill="none" stroke="var(--surface)" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>';
+    s += '<polyline points="'+all+'" fill="none" stroke="var(--course)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>';
+    // bridges
+    BRIDGES.forEach(b=>{
+      s += '<polyline points="'+segPts(b.a,b.b)+'" fill="none" stroke="var(--ink)" stroke-width="4" stroke-dasharray="2 2.5" stroke-linecap="butt"/>';
+      const [x,y]=P(b.x[0],b.x[1]);
+      s += '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+b.anc+'" font-family="Public Sans, system-ui, sans-serif" font-size="9" font-style="italic" fill="var(--muted)" stroke="var(--water)" stroke-width="3" paint-order="stroke">'+b.n+'</text>';
+    });
+    // runner group placeholder (under markers)
+    s += '<g id="runnerG"></g>';
+    // mile markers
+    MILES.forEach(mi=>{
+      const [x,y]=at(mi.m); const big = mi.m===13.11||mi.m===26.219;
+      s += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(big?4:2.6)+'" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.4"/>';
+      const o = LBL_OFF[mi.m]||[7,4];
+      s += '<text x="'+(x+o[0]).toFixed(1)+'" y="'+(y+o[1]).toFixed(1)+'" font-family="Public Sans, sans-serif" font-size="'+(big?10:9)+'" font-weight="500" fill="var(--ink)" stroke="var(--land)" stroke-width="3" paint-order="stroke">'+(mi.label||mi.m)+'</text>';
+    });
+    // spot pins
+    SPOTS.forEach((sp,i)=>{
+      const [x,y]=at(sp.at); const dx = (i===4)?14:(i===8?-2:-14), dy = (i===8)?14:0;
+      const px=x+dx, py=y+dy;
+      s += '<line x1="'+x.toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+px.toFixed(1)+'" y2="'+py.toFixed(1)+'" stroke="var(--ink)" stroke-width="1"/>';
+      s += '<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="7.5" fill="var(--ink)"/>';
+      s += '<text x="'+px.toFixed(1)+'" y="'+(py+3.6).toFixed(1)+'" text-anchor="middle" font-family="Archivo, Arial Narrow, sans-serif" font-stretch="88%" font-weight="700" font-size="11" fill="var(--surface)">'+(i+1)+'</text>';
+    });
+    s += '<g id="spotG"></g>';
+    // start / finish flags
+    const [sx,sy]=at(0), [fx,fy]=at(MARATHON);
+    s += '<text x="'+(sx+2).toFixed(1)+'" y="'+(sy+16).toFixed(1)+'" font-family="Archivo, Arial Narrow, sans-serif" font-stretch="88%" font-weight="800" font-size="13" fill="var(--course)" stroke="var(--land)" stroke-width="3" paint-order="stroke">START · Fort Wadsworth</text>';
+    s += '<text x="'+(fx-4).toFixed(1)+'" y="'+(fy-16).toFixed(1)+'" text-anchor="end" font-family="Archivo, Arial Narrow, sans-serif" font-stretch="88%" font-weight="800" font-size="13" fill="var(--course)" stroke="var(--land)" stroke-width="3" paint-order="stroke">FINISH</text>';
+    svg.innerHTML = s;
+  }
+
+  function drawRunner(mile){
+    const g = $("runnerG"); if(!g) return;
+    if(mile===null){ g.innerHTML=""; return; }
+    const [x,y]=at(mile);
+    g.innerHTML = '<circle class="pulse" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="6" fill="var(--blue)"/><circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="6.5" fill="var(--blue)" stroke="var(--surface)" stroke-width="2"/>';
+  }
+
+  function drawSpot(sp){
+    const g = $("spotG"); if(!g) return;
+    const [x,y]=at(sp.mile); let s="";
+    if(sp.custom && sp.off>0.03){ const [cx,cy]=P(sp.ll[0],sp.ll[1]); s += '<line x1="'+cx.toFixed(1)+'" y1="'+cy.toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="var(--course)" stroke-width="1.5" stroke-dasharray="3 3"/><circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="4" fill="var(--surface)" stroke="var(--course)" stroke-width="2"/>'; }
+    s += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="9" fill="var(--course)" stroke="var(--ink)" stroke-width="2"/>';
+    s += '<path d="M'+x.toFixed(1)+' '+(y-4.5).toFixed(1)+' l1.3 3 3.2 .3 -2.4 2.1 .7 3.1 -2.8 -1.6 -2.8 1.6 .7 -3.1 -2.4 -2.1 3.2 -.3z" fill="var(--course-ink)"/>';
+    const right = x < W-120; const tx = right ? x+12 : x-12, anc = right ? "start" : "end";
+    s += '<text x="'+tx.toFixed(1)+'" y="'+(y+4).toFixed(1)+'" text-anchor="'+anc+'" font-family="Archivo, Arial Narrow, sans-serif" font-stretch="88%" font-weight="800" font-size="12" fill="var(--course)" stroke="var(--land)" stroke-width="3" paint-order="stroke">YOUR SPOT</text>';
+    g.innerHTML = s;
+  }
+
+  // ---------- render ----------
+  function renderWaves(){
+    $("waves").innerHTML = Object.keys(WAVES).map(k=>'<button type="button" id="wave'+k+'" aria-pressed="'+(+k===state.wave)+'" data-w="'+k+'">'+k+'<small>'+fmt(WAVES[k].s).replace(" AM","")+'</small></button>').join("");
+  }
+
+  function render(){
+    const wv = WAVES[state.wave];
+    $("startTime").textContent = fmt(wv.s);
+    $("goalVal").innerHTML = dur(state.goal)+'<small>'+pace(state.goal)+'/mi</small>';
+    const SP = curSpot();
+    const hm = $("hdrMile"); if(hm) hm.textContent = "MILE "+Math.max(1,Math.min(26,Math.round(SP.mile)));
+    $("bnSpot").textContent = SP.mile>=26.2 ? "–" : fmt(eta(SP.mile));
+    $("bnHalf").textContent = fmt(eta(13.11));
+    $("bnFin").textContent = fmt(eta(MARATHON));
+    document.querySelectorAll("#waves button").forEach(b=>b.setAttribute("aria-pressed", String(+b.dataset.w===state.wave)));
+
+    const now = nowET();
+    const raceDay = now.date===RACE_DATE;
+    const F = state.follow;
+    const runnerMile = F && raceDay && now.min>=wv.s ? Math.min(MARATHON,(now.min-wv.s)/(state.goal/MARATHON)) : null;
+
+    // your spot
+    const who0 = state.name.trim() || "Your runner";
+    const st = stretchAt(SP.mile);
+    const myEta = eta(SP.mile);
+    $("msSub").textContent = "About mile "+SP.mile.toFixed(1);
+    $("msName").textContent = SP.name;
+    $("msArea").textContent = SP.area;
+    const field = {wc:480+SP.mile*3.25, pw:515+SP.mile*5.34, pm:545+SP.mile*4.77, w1:550+SP.mile*6.0, last:690+SP.mile*16};
+    $("followTog").setAttribute("aria-checked", String(F));
+    $("runnerBox").hidden = !F;
+    $("legendMe").hidden = !F;
+    $("spotsSub").textContent = F ? "When your runner should get there" : "When the race comes through";
+    $("msEtaLbl").textContent = F ? "Your runner" : "Pro women";
+    $("msEta").textContent = fmt(F ? myEta : field.pw);
+    $("msWindow").textContent = F ? "Be there by " + fmt(myEta-15) : "Pro men around " + fmt(field.pm);
+    $("msSpotLbl").textContent = F ? "Get spotted" : "Make some noise";
+    $("msNextLbl").textContent = F ? "See them again" : "Move along the course";
+    $("msTrain").innerHTML = SP.train;
+    $("msDir").textContent = st.d + (st.no ? "" : " Crossing the course is hard once it's busy, so arrive on the side of the street you want.");
+    const warn = st.no ? st.d : (SP.custom && SP.off>0.25 ? "That location is about "+SP.off.toFixed(1)+" miles from the course. Times are for the nearest point on the course, around mile "+SP.mile.toFixed(1)+"." : "");
+    $("msWarn").hidden = !warn; $("msWarn").textContent = warn;
+    const prior = SPLITS.filter(x=>x[0] <= SP.mile-1.2).pop();
+    if(!F) $("msSpot").textContent = "Lots of runners write their name on their shirt or bib, so call it out. A cowbell or a funny sign goes a long way, especially in the late miles.";
+    else $("msSpot").textContent = "Tell your runner which side and corner you'll be on, and what you'll wear or hold." + (prior ? " In the app, when their "+prior[1]+" split posts, they're about "+Math.round(state.goal/MARATHON*(SP.mile-prior[0]))+" minutes from you." : " Track their start in the app so you know when they're close.");
+    const ahead = PRESETS.filter(p=>p.m>=SP.mile+2.8 && !stretchAt(p.m).no);
+    const picks = []; ahead.forEach(p=>{ if(picks.length<2 && (!picks.length || p.m-picks[picks.length-1].m>3)) picks.push(p); });
+    $("msNext").innerHTML = picks.length ? picks.map(p=>"<b>"+p.n+"</b> (mile "+p.m.toFixed(1)+") "+(F ? "around "+fmt(eta(p.m)) : "· pro women around "+fmt(515+p.m*5.34))+". "+p.tr).join("<br>") + "<br>Allow for crowded trains and station exits." : "Head toward Central Park and your meet-up spot. Pick it ahead of time; cell service is unreliable near the finish.";
+    const pass = [
+      {t:480+SP.mile*3.25,w:"Lead men's wheelchair racers"},
+      {t:482+SP.mile*3.93,w:"Lead women's wheelchair racers"},
+      {t:515+SP.mile*5.34,w:"Professional women's lead pack"},
+      {t:545+SP.mile*4.77,w:"Professional men's lead pack"},
+      {t:550+SP.mile*6.0,w:"Fastest Wave 1 runners arrive; steady stream from here"},
+      {t:690+SP.mile*16,w:"Back of the field and the sweep, around"}
+    ];
+    const plist = (F ? pass.concat([{t:myEta,w:who0+" (estimate)",you:true}]) : pass.slice()).sort((a,b)=>a.t-b.t);
+    $("passList").innerHTML = plist.map(p=>'<li class="'+(p.you?"you":"")+(raceDay && now.min>p.t+2 && !p.you?" gone":"")+'"><span class="t">'+(p.you?"":"~")+fmt(p.t)+'</span><span>'+p.w+'</span></li>').join("");
+    let ms;
+    const mins = m => { m=Math.round(m); return (m>=60?Math.floor(m/60)+"h ":"")+(m%60)+" min"; };
+    if(!F){
+      if(now.date < RACE_DATE) ms = "Tomorrow, the lead wheelchair racers reach you around "+fmt(field.wc)+". The pro women come through around "+fmt(field.pw)+" and the pro men around "+fmt(field.pm)+". After that, runners keep coming until about "+fmt(field.last)+".";
+      else if(now.date > RACE_DATE) ms = "Race day is over.";
+      else if(now.min >= field.w1 && now.min < field.last) ms = "The main field is coming through now, and it keeps coming until about "+fmt(field.last)+"." + (st.look ? " Look "+st.look+"." : "");
+      else if(now.min >= field.last) ms = "The last runners came through around "+fmt(field.last)+".";
+      else { const nx = pass.find(x=>x.t>now.min) || pass[pass.length-1]; ms = "Next up: "+nx.w.replace(/; .*$/,"").replace(/, around$/,"").toLowerCase().replace(/^./,c=>c.toUpperCase())+" in about "+mins(nx.t-now.min)+", around "+fmt(nx.t)+"."; }
+    }
+    else if(now.date < RACE_DATE) ms = "Tomorrow, "+(state.name.trim()||"your runner")+" should reach you around "+fmt(myEta)+". The leaders get to you starting around "+fmt(pass[0].t)+".";
+    else if(now.date > RACE_DATE) ms = "Race day is over.";
+    else if(now.min < myEta-1){ ms = who0+" should reach you in about "+mins(myEta-now.min)+"."; }
+    else if(now.min <= myEta+5) ms = who0+" should be reaching you now." + (st.look ? " Look "+st.look+"." : "");
+    else ms = who0+" should have come through around "+fmt(myEta)+"." + (picks.length ? " Next chance: "+picks[0].n+" around "+fmt(eta(picks[0].m))+"." : "");
+    $("msStatus").textContent = ms;
+    $("spotSel").value = (state.spot && state.spot.id) ? state.spot.id : "custom";
+    drawSpot(SP);
+
+    // spots
+    $("spots").innerHTML = SPOTS.map((sp,i)=>{
+      const t1=F?eta(sp.a):480+sp.a*3.25, t2=F?eta(sp.b):690+sp.b*16;
+      const time = (F && sp.a===sp.b) ? fmt(t1) : fmt(t1).replace(/ (AM|PM)$/, (fmt(t1).slice(-2)===fmt(t2).slice(-2))?"":" $1")+"–"+fmt(t2);
+      const miles = sp.a===sp.b ? "Mile "+sp.a : "Miles "+sp.a+"–"+sp.b;
+      return '<div class="spot"><span class="n">'+(i+1)+'</span><div class="meta"><h3>'+sp.name+(sp.isNew?'<span class="tag">New</span>':'')+'</h3>'+sp.area+' · '+miles+'<br><span class="train">'+sp.train+'</span><br>'+sp.tip+'</div><div class="eta tnum">'+time.replace("–","–<br>")+''+(F?'<small>YOUR RUNNER</small>':'<small>RACE COMES THROUGH</small>')+'</div></div>';
+    }).join("");
+
+    // schedule
+    let nextIdx = -1;
+    if(raceDay){ nextIdx = SCHED.findIndex(it=>it.t>now.min); }
+    $("sched").innerHTML = SCHED.map((it,i)=>{
+      const mine = F && it.wave===state.wave;
+      const cls = ["k-"+it.k, mine?"mine":"", raceDay && it.t<=now.min && i!==nextIdx ? "past":"", i===nextIdx?"next":""].join(" ");
+      return '<li class="'+cls+'"><span class="t">'+fmt(it.t)+'</span><div class="what"><b>'+it.w+'</b>'+(mine?'<span class="chip">Your wave</span>':'')+(it.p?'<p>'+it.p+'</p>':'')+'</div></li>';
+    }).join("");
+
+    // splits
+    $("splitHead").innerHTML = F ? '<tr><th>Mile</th><th>Where</th><th class="e">Your runner</th></tr>' : '<tr><th>Mile</th><th>Where</th><th class="e">Pro women</th><th class="e">Last runners</th></tr>';
+    const cols = m => F ? '<td class="e">'+fmt(eta(m))+'</td>' : '<td class="e">'+fmt(515+m*5.34)+'</td><td class="e">'+fmt(690+m*16)+'</td>';
+    let rows="", lastB=null;
+    MILES.forEach(mi=>{
+      if(mi.b && mi.b!==lastB){ rows += '<tr class="boro"><td colspan="'+(F?3:4)+'">'+mi.b+'</td></tr>'; lastB=mi.b; }
+      const here = runnerMile!==null && runnerMile<mi.m && runnerMile>=mi.m-1;
+      rows += '<tr'+(here?' class="here"':'')+'><td class="m">'+(mi.label||mi.m)+'</td><td>'+mi.w+'</td>'+cols(mi.m)+'</tr>';
+      const nextM = (MILES[MILES.indexOf(mi)+1]||{m:99}).m;
+      if(SP.mile>mi.m && SP.mile<nextM) rows += '<tr class="mine"><td class="m">'+SP.mile.toFixed(1)+'</td><td>'+SP.name.replace(/&/g,"&amp;")+' · your spot</td>'+cols(SP.mile)+'</tr>';
+    });
+    $("splitBody").innerHTML = rows;
+
+    // status
+    const who = state.name.trim() || "Your runner";
+    let main, sub;
+    if(now.date < RACE_DATE){
+      const days = Math.round((Date.parse(RACE_DATE)-Date.parse(now.date))/864e5);
+      main = days===1 ? "Race day is tomorrow" : "Race day in "+days+" days";
+      sub = who+" starts in Wave "+state.wave+" at "+fmt(wv.s)+" and should reach "+SP.name.replace(/^Near /,"near ")+" around "+fmt(eta(SP.mile))+".";
+    } else if(now.date > RACE_DATE){
+      main = "The race is over"; sub = "Results are in the TCS New York City Marathon app.";
+    } else if(now.min < wv.s){
+      const m = wv.s-now.min;
+      main = "Wave "+state.wave+" starts in "+(m>=60?Math.floor(m/60)+"h ":"")+(m%60)+"m";
+      sub = now.min<wv.c ? "Corrals close at "+fmt(wv.c)+"." : "Corrals are closed. Runners are lining up.";
+    } else if(runnerMile < MARATHON){
+      const nearest = MILES.reduce((a,b)=>Math.abs(b.m-runnerMile)<Math.abs(a.m-runnerMile)?b:a);
+      main = who+" ≈ mile "+runnerMile.toFixed(1);
+      sub = "Near: "+nearest.w+". Estimated finish "+fmt(eta(MARATHON))+".";
+    } else {
+      main = who+" should be done"; sub = "Estimated finish around "+fmt(eta(MARATHON))+". Head to your meet-up spot.";
+    }
+    $("statusMain").textContent = main; $("statusSub").textContent = sub;
+
+    drawRunner(F && raceDay ? (now.min<wv.s ? 0 : runnerMile) : null);
+  }
+
+  // ---------- wire up ----------
+  renderWaves(); drawMap();
+  $("followTog").addEventListener("click", ()=>{ state.follow=!state.follow; store.set("nyc26.follow", state.follow?"1":"0"); render(); if(state.follow) $("name").focus({preventScroll:true}); });
+  // spot picker
+  (function(){
+    const sel = $("spotSel"); let html = "", grp = null;
+    PRESETS.forEach(p=>{ if(p.b!==grp){ if(grp) html+="</optgroup>"; html += '<optgroup label="'+p.b+'">'; grp=p.b; } html += '<option value="'+p.id+'">'+p.n+' · mile '+p.m.toFixed(1)+'</option>'; });
+    html += '</optgroup><option value="custom" disabled>Custom spot (tap the map or paste a location)</option>';
+    sel.innerHTML = html;
+  })();
+  const setSpot = (sp,msg,err) => { state.spot=sp; store.set("nyc26.spot",JSON.stringify(sp)); const m=$("pickMsg"); m.textContent=msg||""; m.className="pick-msg"+(err?" err":""); render(); };
+  const say = (msg,err) => { const m=$("pickMsg"); m.textContent=msg; m.className="pick-msg"+(err?" err":""); };
+  $("spotSel").addEventListener("change", e=>{ if(e.target.value!=="custom") setSpot({id:e.target.value}); });
+  $("pasteToggle").addEventListener("click", e=>{ const box=$("pasteBox"); box.hidden=!box.hidden; e.target.setAttribute("aria-expanded",String(!box.hidden)); if(!box.hidden) $("pasteIn").focus(); });
+  function parseLoc(t){
+    t = t.trim(); let m;
+    if((m = t.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/))) return [+m[1],+m[2]];
+    if((m = t.match(/(\d+)°\s*(\d+)['′]\s*([\d.]+)["″]?\s*([NS])[\s,]*(\d+)°\s*(\d+)['′]\s*([\d.]+)["″]?\s*([EW])/i))){
+      const la=(+m[1]+m[2]/60+m[3]/3600)*(/s/i.test(m[4])?-1:1), lo=(+m[5]+m[6]/60+m[7]/3600)*(/w/i.test(m[8])?-1:1); return [la,lo]; }
+    if((m = t.match(/(-?\d{1,2}\.\d{3,})\s*,\s*(-?\d{1,3}\.\d{3,})/))) return [+m[1],+m[2]];
+    if((m = t.match(/(-?\d{1,2}\.\d{3,})\s+(-?\d{1,3}\.\d{3,})/))) return [+m[1],+m[2]];
+    return null;
+  }
+  function usePasted(){
+    const t = $("pasteIn").value; const ll = parseLoc(t);
+    if(!ll){ say(/goo\.gl|maps\.app|apple\.co|maps\.apple/.test(t) ? "Short share links don't include coordinates. Copy the numbers from the dropped pin instead." : "Couldn't find coordinates in that. Paste something like 40.6887, -73.9665.", true); return; }
+    if(ll[0]>0 && ll[1]>0) ll[1] = -ll[1];
+    if(ll[0]<40.55||ll[0]>40.9||ll[1]<-74.15||ll[1]>-73.75){ say("Those coordinates aren't in New York City. Check that you copied latitude, then longitude.", true); return; }
+    const sn = snap(ll[0],ll[1]);
+    if(sn.distMi>3){ say("That's about "+sn.distMi.toFixed(1)+" miles from the course. Pick a spot closer to the route.", true); return; }
+    setSpot({ll, src:"paste"}, "Found it. That's closest to mile "+sn.mile.toFixed(1)+".");
+  }
+  $("pasteGo").addEventListener("click", usePasted);
+  $("pasteIn").addEventListener("keydown", e=>{ if(e.key==="Enter") usePasted(); });
+  $("map").addEventListener("click", e=>{
+    const svg=$("map"); const pt=svg.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY;
+    const ctm=svg.getScreenCTM(); if(!ctm) return; const q=pt.matrixTransform(ctm.inverse());
+    const lat = LAT1 - q.y/KY, lon = LON0 + q.x/KX;
+    const sn = snap(lat,lon);
+    if(sn.distMi>0.6){ say("Tap closer to the orange course line to set your spot.", true); return; }
+    const pt2 = at(sn.mile); const lat2 = LAT1 - pt2[1]/KY, lon2 = LON0 + pt2[0]/KX;
+    setSpot({ll:[lat2,lon2], src:"map"}, "Spot set at mile "+sn.mile.toFixed(1)+".");
+    $("spot-h").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"start"});
+  });
+  $("name").value = state.name; $("goal").value = state.goal;
+  $("waves").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return; state.wave=+b.dataset.w; store.set("nyc26.wave",state.wave); render(); });
+  $("goal").addEventListener("input", e=>{ state.goal=+e.target.value; store.set("nyc26.goal",state.goal); render(); });
+  $("name").addEventListener("input", e=>{ state.name=e.target.value; store.set("nyc26.name",state.name); render(); });
+  render();
+  setInterval(render, 30000);
+})();
+</script>
+</body>
+</html>
